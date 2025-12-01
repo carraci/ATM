@@ -1,0 +1,51 @@
+Code :
+# ===========================================================
+# R Script: Heart Disease Dataset - New Variables
+# ===========================================================
+library(readr)
+library(dplyr)
+# 1. LOAD DATA ------------------------------------------------
+data <- read_csv(
+"C:/Users/IT-28/Downloads/data.csv",
+na = c("?", "") # convert "?" to NA
+)
+# 2. CLEAN DATA ----------------------------------------------
+# Convert character columns to numeric if needed
+data_clean <- data %>%
+mutate(across(where(is.character), as.numeric))
+cat("\n--- Cleaned Data (Top 6 Rows) ---\n")
+print(head(data_clean))
+# 3. METHOD A: Arithmetic Calculations ------------------------
+data_calc <- data_clean %>%
+mutate(
+BP_to_Chol_Ratio = trestbps / chol, # Blood pressure to cholesterol ratio
+Heart_Stress = thalach - oldpeak # Max heart rate minus ST depression
+)
+cat("\n--- Arithmetic Calculations ---\n")
+print(head(data_calc %>% select(trestbps, chol, BP_to_Chol_Ratio, thalach, oldpeak,
+Heart_Stress)))
+# 4. METHOD B: Conditional Logic -----------------------------
+data_logic <- data_clean %>%
+mutate(
+Chol_Status = ifelse(chol > 240, "High Cholesterol", "Normal"),
+Heart_Risk = ifelse(num > 0, "Disease", "Healthy")
+)
+cat("\n--- Conditional Logic ---\n")
+print(head(data_logic %>% select(chol, Chol_Status, num, Heart_Risk)))
+# 5. METHOD C: Text Transformation ---------------------------
+data_text <- data_clean %>%
+mutate(
+Summary = paste("Age:", age, "| BP:", trestbps, "| Chol:", chol, "| Status:", num)
+)
+cat("\n--- Text Transformation ---\n")
+print(head(data_text$Summary))
+# 6. FINAL COMBINED DATASET ----------------------------------
+final_dataset <- data_clean %>%
+mutate(
+BP_Chol_Ratio = trestbps / chol,
+Risk_Label = ifelse(num > 0, "At Risk", "No Risk"),
+Detail = paste0("Age ", age, " | Chol ", chol, " | MaxHR ", thalach)
+)
+cat("\n--- Final Combined Dataset ---\n")
+print(head(final_dataset))
+
